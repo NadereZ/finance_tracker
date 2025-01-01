@@ -1,0 +1,8 @@
+<h2>Categories</h2>
+<ul>
+    {% for category in categories %}
+        <li>{{ category.name }} (Created on: {{ category.created_at }})</li>
+    {% empty %}
+        <li>No categories found.</li>
+    {% endfor %}
+</ul>

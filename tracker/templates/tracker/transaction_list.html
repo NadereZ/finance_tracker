@@ -1,0 +1,14 @@
+<h2>Transactions</h2>
+<ul>
+    {% for transaction in transactions %}
+        <li>
+            {{ transaction.date }} - {{ transaction.transaction_type|title }}: {{ transaction.amount }} ({{ transaction.category.name }})
+            <br>
+            Description: {{ transaction.description }}
+            <a href="{% url 'tracker:update_transaction' transaction.pk %}">Edit</a>
+            <a href="{% url 'tracker:delete_transaction' transaction.pk %}">Delete</a>
+        </li>
+    {% empty %}
+        <li>No transactions found.</li>
+    {% endfor %}
+</ul>
