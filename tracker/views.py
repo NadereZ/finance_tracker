@@ -4,7 +4,9 @@ from .models import Transaction, Category, Budget
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.shortcuts import render
-from .models import Transaction
+from django.db.models import Sum, Q
+from datetime import datetime
+from django.contrib.auth.decorators import login_required
 
 
 def add_transaction(request):
@@ -89,3 +91,41 @@ def contact(request):
 # Get Started page view
 def get_started(request):
     return render(request, 'get_started.html')
+
+@login_required
+def dashboard(request):
+    # Fetch recent transactions (last 10 entries)
+    transactions = Transaction.objects.filter(user=request.user).order_by('-date')[:10]
+
+    # Calculate current balance
+    current_balance = Transaction.objects.filter(user=request.user).aggregate(
+        balance=Sum('amount', filter=Q(transaction_type='income')) -
+                Sum('amount', filter=Q(transaction_type='expense'))
+    )['balance'] or 0
+
+    # Calculate monthly spending
+    monthly_spending = Transaction.objects.filter(
+        user=request.user,
+        transaction_type='expense',
+        date__month=datetime.now().month
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    # Budget utilization calculation
+    budgets = Budget.objects.filter(category__transaction__user=request.user)
+    budget_utilization = {
+        budget.category.name: (Transaction.objects.filter(
+            user=request.user,
+            category=budget.category,
+            transaction_type='expense'
+        ).aggregate(total=Sum('amount'))['total'] or 0) / budget.limit * 100
+        for budget in budgets
+    }
+
+    # Pass data to the template
+    context = {
+        'transactions': transactions,
+        'current_balance': current_balance,
+        'monthly_spending': monthly_spending,
+        'budget_utilization': budget_utilization,
+    }
+    return render(request, 'tracker/dashboard.html', context)

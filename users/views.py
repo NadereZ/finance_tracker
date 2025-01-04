@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 
 # User Registration View
 def register(request):
@@ -14,7 +14,9 @@ def register(request):
             user = form.save()
             login(request, user) # Log the user in after successful registration
             messages.success(request, "Registration successful!")
-            return redirect('home') # Redirect to the home page or any other page
+            return redirect('homepage.html') # Redirect to the home page or any other page
+        else:
+            messages.error(request, "Registration failed. Please check the form.")
     else:
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form': form})
@@ -33,21 +35,9 @@ def update_profile(request):
     return render(request, 'users/update_profile.html', {'form': form})
 
 # User Login View
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, "Login successful!")
-                return redirect('home') # Redirect to the home page
-            else:
-                messages.error(request, "Invalid credentials")
-        else:
-            messages.error(request, "Invalid form submission")
-    else:
-        form = AuthenticationForm()
-    return render(request, 'users/login.html', {'form': form})
+
+class CustomLoginView(LoginView):
+    template_name = 'users/login.html' # Specify your custom login template
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard') # Redirects to the dashboard view after login
