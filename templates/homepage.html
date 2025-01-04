@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Homepage - Personal Finance Tracker
+{% endblock %}
+
+{% block content %}
+<header class="text-center py-5">
+    <h1>Welcome to Personal Finance Tracker</h1>
+    <p>Manage your money smarter and achieve your financial goals.</p>
+    <a href="/signup" class="btn btn-primary">Get Started</a>
+</header>
+
+<section class="row text-center mt-4">
+    <div class="col-md-4">
+        <h3>Track Your Expenses</h3>
+        <p>Log income and expenses effortlessly.</p>
+    </div>
+    <div class="col-md-4">
+        <h3>Visualize Financial Data</h3>
+        <p>Understand your spending patterns with detailed charts.</p>
+    </div>
+    <div class="col-md-4">
+        <h3>Set Budgets</h3>
+        <p>Plan your spending and stick to your goals.</p>
+    </div>
+</section>
+{% endblock %}

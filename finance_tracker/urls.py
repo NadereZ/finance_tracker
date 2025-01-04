@@ -16,8 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from tracker import views
+
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tracker/', include('tracker.urls')),
+    path('users/', include('users.urls')),
+    path('', views.homepage, name='homepage'), # Homepage
+    path('about/', views.about, name='about'), # About Page
+    path('contact/', views.contact, name='contact'), # Contact Page
+    path('signup/', views.get_started, name='get_started'), # Get Started Page
 ]
+   
+

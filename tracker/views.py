@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from .forms import TransactionForm, CategoryForm, BudgetForm
 from .models import Transaction, Category, Budget
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from .models import Transaction
+
 
 def add_transaction(request):
     if request.method == 'POST':
@@ -60,3 +64,28 @@ def delete_transaction(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     transaction.delete()
     return redirect('tracker:transaction_list')
+
+def transaction_list(request):
+    transaction_list = Transaction.objects.all() # Fetch all transactions
+    paginator = Paginator(transaction_list, 10) # 10 transactions per page
+
+    page_number = request.GET.get('page') # Get the page number from the URL
+    page_obj = paginator.get_page(page_number) # Get the page object
+
+    return render(request, 'tracker/transaction_list.html', {'page_obj': page_obj})
+
+# Homepage view
+def homepage(request):
+    return render(request, 'homepage.html')
+
+# About page view
+def about(request):
+    return render(request, 'about.html')
+
+# Contact page view
+def contact(request):
+    return render(request, 'contact.html')
+
+# Get Started page view
+def get_started(request):
+    return render(request, 'get_started.html')
