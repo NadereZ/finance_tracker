@@ -30,6 +30,8 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'), # Contact Page
     path('signup/', views.get_started, name='get_started'), # Get Started Page
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('api/', include('api.urls')),
+   
 ]
    
 

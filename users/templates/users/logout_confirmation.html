@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Logout - Personal Finance Tracker
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Logout</h1>
+    <p>Are you sure you want to log out?</p>
+    <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Logout</button>
+        <a href="{% url 'homepage' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+My Profile - Personal Finance Tracker
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>My Profile</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Profile Information</h5>
+            <p class="card-text">
+                <strong>Username:</strong> {{ profile.user.username }}<br>
+                <strong>Email:</strong> {{ profile.user.email }}<br>
+                <strong>Bio:</strong> {{ profile.bio|default:"Not provided" }}<br>
+                <strong>Phone Number:</strong> {{ profile.phone_number|default:"Not provided" }}<br>
+                <strong>Location:</strong> {{ profile.location|default:"Not provided" }}<br>
+            </p>
+            <a href="{% url 'update_profile' %}" class="btn btn-primary">Update Profile</a>
+            <a href="{% url 'dashboard' %}" class="btn btn-success">Go to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

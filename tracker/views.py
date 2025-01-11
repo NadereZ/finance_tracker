@@ -8,17 +8,20 @@ from django.db.models import Sum, Q
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def add_transaction(request):
     if request.method == 'POST':
         form = TransactionForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('tracker:transaction_list') # Redirect to the transaction list page after submission
+            transaction = form.save(commit=False)
+            transaction.user = request.user  # Set the user
+            transaction.save()
+            return redirect('tracker:transaction_list')
     else:
         form = TransactionForm()
     return render(request, 'tracker/add_transaction.html', {'form': form})
 
+@login_required
 def add_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -29,6 +32,7 @@ def add_category(request):
         form = CategoryForm()
     return render(request, 'tracker/add_category.html', {'form': form})
 
+@login_required
 def add_budget(request):
     if request.method == 'POST':
         form = BudgetForm(request.POST)
@@ -39,18 +43,26 @@ def add_budget(request):
         form = BudgetForm()
     return render(request, 'tracker/add_budget.html', {'form': form})
 
-def transaction_list(request):
-    transactions = Transaction.objects.all().order_by('-data')
-    return render(request, 'tracker/transaction_list.html', {'transactions': transactions})
 
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'tracker/category_list.html', {'categories': categories})
 
+def transaction_list(request):
+    transaction_list = Transaction.objects.all().order_by('-date') # Fetch all transactions
+    paginator = Paginator(transaction_list, 10) # 10 transactions per page
+
+    page_number = request.GET.get('page') # Get the page number from the URL
+    page_obj = paginator.get_page(page_number) # Get the page object
+
+    return render(request, 'tracker/transaction_list.html', {'page_obj': page_obj})
+
 def budget_list(request):
     budgets = Budget.objects.all()
     return render(request, 'tracker/budget_list.html', {'budgets': budgets})
 
+
+@login_required
 def update_transaction(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     if request.method == 'POST':
@@ -67,14 +79,6 @@ def delete_transaction(request, pk):
     transaction.delete()
     return redirect('tracker:transaction_list')
 
-def transaction_list(request):
-    transaction_list = Transaction.objects.all() # Fetch all transactions
-    paginator = Paginator(transaction_list, 10) # 10 transactions per page
-
-    page_number = request.GET.get('page') # Get the page number from the URL
-    page_obj = paginator.get_page(page_number) # Get the page object
-
-    return render(request, 'tracker/transaction_list.html', {'page_obj': page_obj})
 
 # Homepage view
 def homepage(request):
@@ -111,13 +115,13 @@ def dashboard(request):
     ).aggregate(total=Sum('amount'))['total'] or 0
 
     # Budget utilization calculation
-    budgets = Budget.objects.filter(category__transaction__user=request.user)
+    budgets = Budget.objects.filter(category__transactions__user=request.user)
     budget_utilization = {
         budget.category.name: (Transaction.objects.filter(
             user=request.user,
             category=budget.category,
             transaction_type='expense'
-        ).aggregate(total=Sum('amount'))['total'] or 0) / budget.limit * 100
+        ).aggregate(total=Sum('amount'))['total'] or 0) / budget.amount * 100
         for budget in budgets
     }
 

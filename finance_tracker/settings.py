@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tracker',
     'users',
+   'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -134,4 +136,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "users.CustomUser"
 ACCOUNT_AUTHENTICATATION_METHOD = "email"
 
-LOGIN_REDIRECT_URL = '/tracker/dashboard/'
+LOGIN_REDIRECT_URL = 'profile'
+
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+AUTH_USER_MODEL = 'users.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+REST_FRAMEWORK['DEFAULT_PAGINATION_CLASS'] = 'rest_framework.pagination.PageNumberPagination'
+REST_FRAMEWORK['PAGE_SIZE'] = 10
